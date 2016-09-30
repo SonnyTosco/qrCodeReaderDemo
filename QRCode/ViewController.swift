@@ -12,7 +12,6 @@ import AVFoundation
 class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     
     @IBOutlet var lblQRCodeResult: UILabel!
-    
     @IBOutlet var lblQRCodeLabel: UILabel!
     
     var objCaptureSession : AVCaptureSession?
@@ -49,6 +48,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         objCaptureVideoPreviewLayer?.frame = view.layer.bounds
         self.view.layer.addSublayer(objCaptureVideoPreviewLayer!)
         objCaptureSession?.startRunning()
+        //check to see if bringsubviewtofront is the method that would bring text to the front if we had a video background
         self.view.bringSubviewToFront(lblQRCodeResult)
         self.view.bringSubviewToFront(lblQRCodeLabel)
     }
@@ -64,7 +64,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     func captureOutput(captureOutput: AVCaptureOutput!, didOutputMetadataObjects metadataObjects: [AnyObject]!, fromConnection connection: AVCaptureConnection!) {
         if metadataObjects == nil || metadataObjects.count == 0 {
             vwQRCode?.frame = CGRectZero
-            lblQRCodeResult.text = "NO QRCode tedxt detected"
+            lblQRCodeResult.text = "NO QRCode text detected"
             return
         }
         let objMetadataMachineReadableCodeObject = metadataObjects[0] as! AVMetadataMachineReadableCodeObject
@@ -73,6 +73,10 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
             vwQRCode?.frame = objBarCode.bounds;
             if objMetadataMachineReadableCodeObject.stringValue != nil {
                 lblQRCodeResult.text = objMetadataMachineReadableCodeObject.stringValue
+                let urlOfResult: NSURL = NSURL(string: "\(objMetadataMachineReadableCodeObject.stringValue)")!
+                if UIApplication.sharedApplication().canOpenURL(urlOfResult){
+                    UIApplication.sharedApplication().openURL(urlOfResult)
+                }
             }
         }
     }
